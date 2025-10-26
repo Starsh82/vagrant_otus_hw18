@@ -1,0 +1,11 @@
+---
+- name: Install kernel v.6.17.5
+  hosts: all
+  become" yes
+
+  vars:
+    kdd: "/home/vagrant/newkernel"
+
+  tasks:
+    - name: Get current kernel
+      command: uname -r

@@ -1,0 +1,89 @@
+---
+- name: Install kernel 6.17.5 with automatic reboot
+  hosts: all
+  become: yes
+
+  vars:
+    kernel_download_dir: "/home/vagrant/newkernel"
+
+  tasks:
+    - name: Get current kernel version
+      command: uname -r
+      register: old_kernel
+      changed_when: false
+
+    - name: Create download directory
+      file:
+        path: "{{ kernel_download_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Download kernel packages
+      get_url:
+        url: "{{ item.url }}"
+        dest: "{{ kernel_download_dir }}/{{ item.filename }}"
+        mode: '0644'
+      loop:
+        - { 
+            url: "https://kernel.ubuntu.com/mainline/v6.17.5/amd64/linux-headers-6.17.5-061705_6.17.5-061705.202510231631_all.deb",
+            filename: "linux-headers-6.17.5-061705_all.deb"
+          }
+        - {
+            url: "https://kernel.ubuntu.com/mainline/v6.17.5/amd64/linux-headers-6.17.5-061705-generic_6.17.5-061705.202510231631_amd64.deb",
+            filename: "linux-headers-6.17.5-061705-generic_amd64.deb"
+          }
+        - {
+            url: "https://kernel.ubuntu.com/mainline/v6.17.5/amd64/linux-image-unsigned-6.17.5-061705-generic_6.17.5-061705.202510231631_amd64.deb",
+            filename: "linux-image-unsigned-6.17.5-061705-generic_amd64.deb"
+          }
+        - {
+            url: "https://kernel.ubuntu.com/mainline/v6.17.5/amd64/linux-modules-6.17.5-061705-generic_6.17.5-061705.202510231631_amd64.deb",
+            filename: "linux-modules-6.17.5-061705-generic_amd64.deb"
+          }
+
+    - name: Install required dependencies
+      apt:
+        name:
+          - dkms
+          - build-essential
+          - libelf-dev
+        state: present
+        update_cache: yes
+
+    - name: Install all kernel packages
+      apt:
+        deb: "{{ kernel_download_dir }}/{{ item }}"
+      loop:
+        - "linux-headers-6.17.5-061705_all.deb"
+        - "linux-headers-6.17.5-061705-generic_amd64.deb"
+        - "linux-image-unsigned-6.17.5-061705-generic_amd64.deb"
+        - "linux-modules-6.17.5-061705-generic_amd64.deb"
+
+    - name: Update GRUB
+      command: update-grub
+
+    - name: Reboot to activate new kernel
+      reboot:
+        msg: "Rebooting to activate kernel 6.17.5"
+        connect_timeout: 5
+        reboot_timeout: 300
+        pre_reboot_delay: 10
+        post_reboot_delay: 30
+
+    - name: Wait for system to come back online
+      wait_for_connection:
+        connect_timeout: 20
+        sleep: 5
+        delay: 5
+        timeout: 300
+
+    - name: Verify new kernel version
+      command: uname -r
+      register: new_kernel
+
+    - name: Display upgrade results
+      debug:
+        msg: |
+          Kernel upgrade successful!
+          Old kernel: {{ old_kernel.stdout }}
+          New kernel: {{ new_kernel.stdout }}
