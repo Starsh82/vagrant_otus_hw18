@@ -1,5 +1,5 @@
 ---
-- name: Install kernel 6.17.5 with automatic reboot
+- name: Install kernel v6.8.12 with automatic reboot
   hosts: all
   become: yes
 
@@ -25,20 +25,20 @@
         mode: '0644'
       loop:
         - { 
-            url: "https://kernel.ubuntu.com/mainline/v6.17.5/amd64/linux-headers-6.17.5-061705_6.17.5-061705.202510231631_all.deb",
-            filename: "linux-headers-6.17.5-061705_all.deb"
+            url: "https://kernel.ubuntu.com/mainline/v6.8.12/amd64/linux-headers-6.8.12-060812-generic_6.8.12-060812.202501300202_amd64.deb",
+            filename: "linux-headers-6.8.12-060812-generic_6.8.12-060812.202501300202_amd64.deb"
           }
         - {
-            url: "https://kernel.ubuntu.com/mainline/v6.17.5/amd64/linux-headers-6.17.5-061705-generic_6.17.5-061705.202510231631_amd64.deb",
-            filename: "linux-headers-6.17.5-061705-generic_amd64.deb"
+            url: "https://kernel.ubuntu.com/mainline/v6.8.12/amd64/linux-headers-6.8.12-060812_6.8.12-060812.202501300202_all.deb",
+            filename: "linux-headers-6.8.12-060812_6.8.12-060812.202501300202_all.deb"
           }
         - {
-            url: "https://kernel.ubuntu.com/mainline/v6.17.5/amd64/linux-image-unsigned-6.17.5-061705-generic_6.17.5-061705.202510231631_amd64.deb",
-            filename: "linux-image-unsigned-6.17.5-061705-generic_amd64.deb"
+            url: "https://kernel.ubuntu.com/mainline/v6.8.12/amd64/linux-image-unsigned-6.8.12-060812-generic_6.8.12-060812.202501300202_amd64.deb",
+            filename: "linux-image-unsigned-6.8.12-060812-generic_6.8.12-060812.202501300202_amd64.deb"
           }
         - {
-            url: "https://kernel.ubuntu.com/mainline/v6.17.5/amd64/linux-modules-6.17.5-061705-generic_6.17.5-061705.202510231631_amd64.deb",
-            filename: "linux-modules-6.17.5-061705-generic_amd64.deb"
+            url: "https://kernel.ubuntu.com/mainline/v6.8.12/amd64/linux-modules-6.8.12-060812-generic_6.8.12-060812.202501300202_amd64.deb",
+            filename: "linux-modules-6.8.12-060812-generic_6.8.12-060812.202501300202_amd64.deb"
           }
 
     - name: Install required dependencies
@@ -54,17 +54,17 @@
       apt:
         deb: "{{ kernel_download_dir }}/{{ item }}"
       loop:
-        - "linux-headers-6.17.5-061705_all.deb"
-        - "linux-headers-6.17.5-061705-generic_amd64.deb"
-        - "linux-image-unsigned-6.17.5-061705-generic_amd64.deb"
-        - "linux-modules-6.17.5-061705-generic_amd64.deb"
+        - "linux-headers-6.8.12-060812_6.8.12-060812.202501300202_all.deb"
+        - "linux-headers-6.8.12-060812-generic_6.8.12-060812.202501300202_amd64.deb"
+        - "linux-modules-6.8.12-060812-generic_6.8.12-060812.202501300202_amd64.deb"
+        - "linux-image-unsigned-6.8.12-060812-generic_6.8.12-060812.202501300202_amd64.deb"
 
     - name: Update GRUB
       command: update-grub
 
     - name: Reboot to activate new kernel
       reboot:
-        msg: "Rebooting to activate kernel 6.17.5"
+        msg: "Rebooting to activate kernel 6.8.12"
         connect_timeout: 5
         reboot_timeout: 300
         pre_reboot_delay: 10
